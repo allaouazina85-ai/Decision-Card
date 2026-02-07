@@ -1,0 +1,375 @@
+/* ====================================================
+   DecisionCard MVP - Mobile Enhancements
+   تحسينات إضافية للهواتف المحمولة
+==================================================== */
+
+// دالة للتحقق من الهاتف
+function isMobile() {
+  return window.innerWidth <= 767;
+}
+
+// دالة لإظهار إشعار على الجوال
+function showMobileToast(message, type = "info", duration = 3000) {
+  if (!isMobile()) return;
+  
+  const toast = document.createElement("div");
+  toast.className = `mobile-toast ${type}`;
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: ${type === "success" ? "#38a169" : 
+                 type === "error" ? "#e53e3e" : 
+                 type === "warning" ? "#ed8936" : "#3182ce"};
+    color: white;
+    padding: 14px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 10000;
+    text-align: center;
+    font-weight: 500;
+    font-size: 15px;
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    backdrop-filter: blur(10px);
+    animation: slideUpMobile 0.3s ease-out;
+  `;
+  
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateX(-50%) translateY(10px)";
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+// إضافة أنيميشن للتوست
+const toastStyle = document.createElement('style');
+toastStyle.textContent = `
+  @keyframes slideUpMobile {
+    from { 
+      opacity: 0; 
+      transform: translateX(-50%) translateY(20px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateX(-50%) translateY(0); 
+    }
+  }
+`;
+document.head.appendChild(toastStyle);
+
+document.addEventListener('DOMContentLoaded', function() {
+  // التحقق من أننا على جهاز محمول
+  if (!isMobile()) return;
+  
+  // ========== تحسينات تجربة المستخدم ==========
+  
+  // 1. إضافة زر للعودة للأعلى
+  addScrollToTopButton();
+  
+  // 2. تحسين تجربة الكتابة على الهواتف
+  enhanceTextInputExperience();
+  
+  // 3. منع التكبير في حقول الإدخال
+  preventInputZoom();
+  
+  // 4. تحسين عرض المودال
+  enhanceModalExperience();
+  
+  // 5. إضافة مؤشر التحميل
+  addLoadingIndicator();
+  
+  // 6. تحسين التنقل
+  enhanceNavigation();
+});
+
+// ========== وظائف المساعدة ==========
+
+function addScrollToTopButton() {
+  const scrollBtn = document.createElement('button');
+  scrollBtn.innerHTML = '↑';
+  scrollBtn.className = 'mobile-scroll-top';
+  scrollBtn.setAttribute('aria-label', 'العودة إلى الأعلى');
+  scrollBtn.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 9999;
+    font-size: 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    touch-action: manipulation;
+  `;
+  
+  document.body.appendChild(scrollBtn);
+  
+  // إظهار/إخفاء الزر حسب التمرير
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      scrollBtn.style.display = 'flex';
+      setTimeout(() => scrollBtn.style.opacity = '1', 10);
+    } else {
+      scrollBtn.style.opacity = '0';
+      setTimeout(() => {
+        if (scrollBtn.style.opacity === '0') {
+          scrollBtn.style.display = 'none';
+        }
+      }, 300);
+    }
+  });
+  
+  // حدث النقر
+  scrollBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollBtn.style.transform = 'scale(0.9)';
+    setTimeout(() => scrollBtn.style.transform = 'scale(1)', 300);
+  });
+}
+
+function enhanceTextInputExperience() {
+  // جعل حقول النص أسهل للكتابة على الهواتف
+  const textInputs = document.querySelectorAll('input[type="text"], textarea');
+  
+  textInputs.forEach(input => {
+    // تحسين التركيز على الهواتف
+    input.addEventListener('focus', function() {
+      setTimeout(() => {
+        const rect = this.getBoundingClientRect();
+        if (rect.top < 100 || rect.bottom > window.innerHeight - 200) {
+          this.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      }, 300);
+    });
+  });
+}
+
+function preventInputZoom() {
+  // منع التكبير التلقائي في iOS عند التركيز على الحقول
+  const viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) return;
+  
+  const originalContent = viewport.content;
+  
+  function disableZoom() {
+    viewport.content = originalContent + ', maximum-scale=1';
+  }
+  
+  function enableZoom() {
+    viewport.content = originalContent;
+  }
+  
+  const inputs = document.querySelectorAll(
+    'input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), ' +
+    'textarea, select'
+  );
+  
+  inputs.forEach(input => {
+    input.addEventListener('focus', disableZoom);
+    input.addEventListener('blur', enableZoom);
+  });
+}
+
+function enhanceModalExperience() {
+  const modal = document.getElementById('modalDecision');
+  if (!modal) return;
+  
+  // إغلاق المودال بالسحب لأسفل
+  let touchStartY = 0;
+  let modalContent = modal.querySelector('.panel');
+  
+  modalContent.addEventListener('touchstart', function(e) {
+    if (this.scrollTop === 0) {
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+  
+  modalContent.addEventListener('touchmove', function(e) {
+    if (this.scrollTop > 0) return;
+    
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - touchStartY;
+    
+    if (diff > 0) { // السحب لأسفل فقط
+      this.style.transform = `translateY(${diff}px)`;
+    }
+  }, { passive: true });
+  
+  modalContent.addEventListener('touchend', function(e) {
+    const currentY = e.changedTouches[0].clientY;
+    const diff = currentY - touchStartY;
+    
+    this.style.transition = 'transform 0.3s ease';
+    
+    if (diff > 100) { // إذا تم السحب لأسفل أكثر من 100px
+      modal.classList.remove('open');
+      document.body.style.overflow = 'auto';
+    }
+    this.style.transform = 'translateY(0)';
+  }, { passive: true });
+}
+
+function addLoadingIndicator() {
+  // إضافة مؤشر تحميل للعمليات الطويلة
+  const style = document.createElement('style');
+  style.textContent = `
+    .mobile-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      backdrop-filter: blur(5px);
+    }
+    
+    .mobile-loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid var(--line);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: mobile-spin 1s linear infinite;
+    }
+    
+    .mobile-loading-text {
+      margin-top: 1rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+    
+    @keyframes mobile-spin {
+      to { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  const loadingDiv = document.createElement('div');
+  loadingDiv.className = 'mobile-loading';
+  loadingDiv.innerHTML = `
+    <div class="mobile-loading-spinner"></div>
+    <div class="mobile-loading-text">جاري التحميل...</div>
+  `;
+  document.body.appendChild(loadingDiv);
+  
+  // وظائف للتحكم في مؤشر التحميل
+  window.showMobileLoading = (text = 'جاري التحميل...') => {
+    loadingDiv.querySelector('.mobile-loading-text').textContent = text;
+    loadingDiv.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+  
+  window.hideMobileLoading = () => {
+    loadingDiv.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  };
+}
+
+function enhanceNavigation() {
+  // تحسين التنقل بالأصابع
+  const buttons = document.querySelectorAll('.btn, button');
+  buttons.forEach(btn => {
+    btn.addEventListener('touchstart', function() {
+      this.style.transform = 'scale(0.95)';
+      this.style.transition = 'transform 0.1s';
+    }, { passive: true });
+    
+    btn.addEventListener('touchend', function() {
+      this.style.transform = 'scale(1)';
+    }, { passive: true });
+    
+    btn.addEventListener('touchcancel', function() {
+      this.style.transform = 'scale(1)';
+    }, { passive: true });
+  });
+}
+
+// إعادة رسم الواجهة عند تغيير حجم النافذة
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    // إعادة تحميل الصفحة إذا تغير من موبايل لكمبيوتر أو العكس
+    if (typeof route === 'function') {
+      route();
+    }
+  }, 250);
+});
+
+// ========== تحسينات إضافية ==========
+
+// تحسين تجربة الكيبورد الافتراضي
+window.addEventListener('load', () => {
+  // إضافة شاشة الترحيب الأولى
+  if (!localStorage.getItem('dc_first_visit_mobile') && isMobile()) {
+    setTimeout(() => {
+      const welcomeMsg = document.createElement('div');
+      welcomeMsg.className = 'mobile-welcome';
+      welcomeMsg.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--accent);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        z-index: 10001;
+        text-align: center;
+        animation: fadeOut 0.5s ease 2s forwards;
+      `;
+      
+      welcomeMsg.innerHTML = `
+        <div style="font-size: 3rem; margin-bottom: 1rem;">👋</div>
+        <h2 style="margin-bottom: 1rem; font-size: 1.5rem;">مرحباً بك في DecisionCard</h2>
+        <p style="margin-bottom: 2rem; line-height: 1.5; font-size: 1rem;">
+          انموذج تعليمية الترجمة الهجين مع الذكاء الاصطناعي
+        </p>
+        <div style="font-size: 0.9rem; opacity: 0.8;">
+          اسحب لليسار واليمين للتنقل بين الصفحات
+        </div>
+      `;
+      
+      document.body.appendChild(welcomeMsg);
+      
+      // إضافة أنيميشن
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes fadeOut {
+          to { opacity: 0; visibility: hidden; }
+        }
+      `;
+      document.head.appendChild(style);
+      
+      localStorage.setItem('dc_first_visit_mobile', 'true');
+    }, 1000);
+  }
+});

@@ -1,0 +1,559 @@
+/* ====================================================
+   DecisionCard MVP - Responsive Styles
+   تحسينات كاملة للشاشات الصغيرة فقط
+   لا تؤثر على الشاشات الكبيرة
+==================================================== */
+
+/* ========================
+   Global Mobile Styles
+======================== */
+@media (max-width: 767px) {
+  /* ========== BASE ========== */
+  html {
+    font-size: 14px;
+  }
+  
+  body {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  .wrap {
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  /* ========== HEADER ========== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  
+  header .wrap.row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  
+  .brand {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  
+  .brand .logo {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+  }
+  
+  .brand .title {
+    font-size: 1.3rem;
+  }
+  
+  .brand .small {
+    font-size: 0.85rem;
+  }
+  
+  .pill {
+    display: none;
+  }
+  
+  .nav {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .nav .btn {
+    padding: 10px 8px;
+    font-size: 0.85rem;
+    text-align: center;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .nav .btn.primary {
+    grid-column: span 3;
+    order: -1;
+    margin-bottom: 5px;
+  }
+  
+  .nav .btn.danger {
+    grid-column: span 3;
+    margin-top: 5px;
+  }
+  
+  /* ========== TYPOGRAPHY ========== */
+  h1 {
+    font-size: 1.6rem;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+  }
+  
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .muted {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  .small {
+    font-size: 0.8rem;
+  }
+  
+  /* ========== CARDS & LAYOUT ========== */
+  .card {
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .twoCol {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .sep {
+    margin: 1rem 0;
+  }
+  
+  /* ========== KPI ========== */
+  .kpi {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .kpi .item {
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .kpi .num {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+  }
+  
+  /* ========== LISTS ========== */
+  .list {
+    gap: 0.75rem;
+  }
+  
+  .itemRow {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .itemRow .meta {
+    width: 100%;
+  }
+  
+  .itemRow .meta > div:first-child {
+    font-size: 1rem;
+  }
+  
+  .itemRow .rightActions {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .itemRow .rightActions .btn {
+    flex: 1;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  /* ========== FORMS ========== */
+  label {
+    font-size: 0.95rem;
+    margin: 0.75rem 0 0.5rem;
+  }
+  
+  input, select, textarea {
+    font-size: 16px; /* Prevent iOS zoom */
+    padding: 0.875rem;
+    border-radius: 8px;
+  }
+  
+  textarea {
+    min-height: 120px;
+  }
+  
+  /* ========== BUTTONS ========== */
+  .btn, button {
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+    width: 100%;
+    justify-content: center;
+    margin: 0.25rem 0;
+  }
+  
+  .rightActions {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .rightActions .btn {
+    width: 100%;
+  }
+  
+  /* ========== MODAL ========== */
+  .modal {
+    padding: 10px;
+    align-items: flex-end;
+  }
+  
+  .modal .panel {
+    max-width: 100%;
+    max-height: 85vh;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .modal .panel h2 {
+    font-size: 1.3rem;
+  }
+  
+  /* ========== VIEW: INTRO ========== */
+  #viewIntro .card {
+    padding: 1.5rem;
+    text-align: center;
+  }
+  
+  #viewIntro h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  #viewIntro .muted {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  #viewIntro .grid {
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  #viewIntro .intro-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 2rem 0;
+  }
+  
+  #viewIntro .intro-actions .btn {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+  
+  /* ========== VIEW: THEORY ========== */
+  #viewTheory .grid {
+    gap: 1.5rem;
+  }
+  
+  #viewTheory .itemRow {
+    padding: 1rem;
+  }
+  
+  #viewTheory .itemRow .meta div:first-child {
+    font-size: 1rem;
+  }
+  
+  /* ========== VIEW: DASHBOARD ========== */
+  #viewDashboard .grid {
+    gap: 1.5rem;
+  }
+  
+  /* Hallucination exercise */
+  #hallucinationFeedback {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  /* ========== VIEW: WORKSPACE ========== */
+  #viewWork .grid {
+    gap: 1.5rem;
+  }
+  
+  #viewWork .twoCol {
+    gap: 1.5rem;
+  }
+  
+  #viewWork textarea {
+    min-height: 150px;
+  }
+  
+  /* ========== VIEW: REVIEW ========== */
+  #viewReview .twoCol {
+    gap: 1.5rem;
+  }
+  
+  #viewReview .check {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  #viewReview .check input {
+    margin-top: 0.25rem;
+  }
+  
+  /* ========== VIEW: REPORT ========== */
+  #viewReport .card {
+    padding: 1.5rem;
+  }
+  
+  .report-section {
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+  
+  .report-score {
+    font-size: 2rem;
+  }
+  
+  /* ========== CHECKBOXES ========== */
+  .check {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .check input {
+    margin-top: 0.25rem;
+  }
+  
+  .check div {
+    width: 100%;
+  }
+  
+  /* ========== BADGES ========== */
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.75rem;
+  }
+  
+  /* ========== UTILITIES ========== */
+  .mobile-hidden {
+    display: none !important;
+  }
+  
+  .mobile-block {
+    display: block !important;
+  }
+  
+  .mobile-flex {
+    display: flex !important;
+  }
+  
+  /* ========== FOOTER NOTE ========== */
+  .footerNote {
+    font-size: 0.75rem;
+    margin-top: 1rem;
+    text-align: center;
+  }
+}
+
+/* ========================
+   Tablet Styles (768px - 1024px)
+======================== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .wrap {
+    max-width: 95%;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .twoCol {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  
+  .nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .nav .btn {
+    margin: 0.25rem;
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .kpi {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .kpi .item:last-child {
+    grid-column: span 2;
+  }
+  
+  .modal .panel {
+    max-width: 90%;
+  }
+}
+
+/* ========================
+   Touch Device Optimizations
+======================== */
+@media (hover: none) and (pointer: coarse) {
+  .btn, button {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  input, select, textarea {
+    min-height: 44px;
+  }
+  
+  .nav .btn {
+    min-height: 40px;
+  }
+  
+  /* Better tap targets */
+  .itemRow {
+    min-height: 60px;
+  }
+  
+  /* Prevent text selection on interactive elements */
+  .btn, .nav a, button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* ========================
+   Landscape Mobile
+======================== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal .panel {
+    max-height: 70vh;
+    border-radius: 12px;
+  }
+  
+  header {
+    position: static;
+  }
+  
+  .wrap {
+    padding: 10px;
+  }
+  
+  textarea {
+    min-height: 80px;
+  }
+}
+
+/* ========================
+   Very Small Phones (< 360px)
+======================== */
+@media (max-width: 359px) {
+  html {
+    font-size: 13px;
+  }
+  
+  .wrap {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .card {
+    padding: 1rem;
+  }
+  
+  .nav {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .nav .btn.primary,
+  .nav .btn.danger {
+    grid-column: span 2;
+  }
+  
+  h1 {
+    font-size: 1.4rem;
+  }
+  
+  h2 {
+    font-size: 1.2rem;
+  }
+  
+  .btn, button {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* ========================
+   Print Styles
+======================== */
+@media print {
+  .btn, .nav, .modal,
+  .rightActions, .footerNote,
+  #hallucinationFeedback,
+  .hint {
+    display: none !important;
+  }
+  
+  .card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+  
+  h2 {
+    font-size: 16pt;
+    color: black !important;
+  }
+}
