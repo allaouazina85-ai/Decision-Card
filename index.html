@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DecisionCard |  "منصّة الطّالب "انموذجا (MVP)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<header>
+  <div class="wrap row">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <div class="title">DecisionCard</div>
+        <div class="small">انموذج منصّة الطّالب (MVP) — جهة المدرّس لاحقًا</div>
+      </div>
+    </div>
+    <div class="pill">Students ✅ | Teacher: Coming Soon</div>
+    <nav class="nav">
+      <a class="btn" href="#/intro">ملخّص البحث</a>
+      <a class="btn" href="#/theory">الإطار النظري</a>
+      <a class="btn" href="#/dashboard">لوحة الطالب</a>
+      <a class="btn primary" href="#/new">مهمّة جديدة</a>
+      <a class="btn coming" href="javascript:void(0)" title="قريبًا">لوحة المدرّس</a>
+      <button class="btn danger" id="btnReset" title="يمسح التخزين المحلي">إعادة ضبط</button>
+    </nav>
+  </div>
+</header>
+
+<!-- شاشة البداية الجديدة -->
+<section id="viewIntro" class="view hidden">
+  <div class="card" style="text-align:center; padding:40px 20px; max-width:800px; margin:40px auto;">
+    <h1 style="font-size:2.2rem; margin-bottom:20px; color:var(--accent)">انموذج تعليمية الترجمة الهجين</h1>
+    <div class="muted" style="font-size:1.1rem; margin-bottom:30px; line-height:1.6">
+      تجسيد عملي لمداخلة بحثية: "الذكاء الاصطناعي في تعليمية الترجمة وتعلمها: نحو انموذج هجين بين الوسيلة والغاية"
+    </div>
+    
+    <div class="grid" style="margin:30px 0">
+      <div class="card" style="background:rgba(106,166,255,.05)">
+        <h3>الفرضية البحثية</h3>
+        <p>الذكاء الاصطناعي يمكن أن يكون محفزاً للتقارب بين الترجمة كوسيلة وكغاية عبر انموذج تعليمي هجين</p>
+      </div>
+      <div class="card" style="background:rgba(125,255,178,.05)">
+        <h3>الأنموذج المقترح</h3>
+        <p>4 مراحل: مع، فوق، بعد الذكاء الاصطناعي + بطاقة قرار ترجمي</p>
+      </div>
+    </div>
+    
+    <div class="sep"></div>
+    
+    <div class="twoCol" style="margin:30px 0">
+      <div>
+        <h3>للباحثين</h3>
+        <ul class="muted" style="text-align:right; line-height:1.8">
+          <li>انموذج توضيحي للورقة البحثية</li>
+          <li>قابل للتطوير لأداة بحثية</li>
+          <li>بيانات قابلة للتصدير</li>
+        </ul>
+      </div>
+      <div>
+        <h3>للمتعلمين</h3>
+        <ul class="muted" style="text-align:right; line-height:1.8">
+          <li>تدريب على اتخاذ القرار الترجمي</li>
+          <li>تطوير مهارات التحقق والنقد</li>
+          <li>تعلم أخلاقيات استخدام الذكاء الاصطناعي</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div style="margin:40px 0">
+      <a class="btn primary" href="#/theory" style="font-size:1.1rem; padding:15px 30px; margin:0 10px">
+        ابدأ بالتجربة ↝
+      </a>
+      <a class="btn" href="#/dashboard" style="font-size:1.1rem; padding:15px 30px; margin:0 10px">
+        الدخول المباشر
+      </a>
+    </div>
+    
+    <div class="small muted" style="margin-top:20px">
+      هذا انموذج توضيحي قابل للتطوير لأداة بحثية كاملة - البيانات محفوظة محلياً في المتصفح
+    </div>
+  </div>
+</section>
+
+<main class="wrap" id="app">
+  <!-- صفحة الإطار النظري -->
+  <section id="viewTheory" class="view hidden">
+    <div class="card">
+      <h2>📚 الإطار النظري للانموذج الهجين</h2>
+      <div class="muted">تجسيد عملي للمداخلة البحثية - الانموذج ذو الأربع مراحل</div>
+      
+      <div class="sep"></div>
+      
+      <div class="grid">
+        <div>
+          <h3>المراحل الأربع للنموذج الهجين</h3>
+          <div class="list">
+            <div class="itemRow" style="background:rgba(255,255,255,.03)">
+              <div class="meta">
+                <div><b>المرحلة 1: بدون ذكاء اصطناعي</b></div>
+                <div class="muted">تثبيت الاستقلالية وبناء الحس اللغوي والأسلوبي</div>
+              </div>
+              <span class="badge">الأساس</span>
+            </div>
+            
+            <div class="itemRow" style="background:rgba(106,166,255,.05)">
+              <div class="meta">
+                <div><b>المرحلة 2: مع ذكاء اصطناعي</b></div>
+                <div class="muted">مساندة ومقارنة - توليد مسودة أو اقتراح بدائل</div>
+              </div>
+              <span class="badge ok">مساندة</span>
+            </div>
+            
+            <div class="itemRow" style="background:rgba(255,211,106,.05)">
+              <div class="meta">
+                <div><b>المرحلة 3: فوق ذكاء اصطناعي</b></div>
+                <div class="muted">نقد وتحسين - كشف الأخطاء وتحليل الملاءمة</div>
+              </div>
+              <span class="badge warn">نقد</span>
+            </div>
+            
+            <div class="itemRow" style="background:rgba(125,255,178,.05)">
+              <div class="meta">
+                <div><b>المرحلة 4: بعد ذكاء اصطناعي</b></div>
+                <div class="muted">تحقق وأخلاقيات - فحص وتوثيق وتصريح</div>
+              </div>
+              <span class="badge ok">تحقق</span>
+            </div>
+          </div>
+          
+          <div class="sep" style="margin:20px 0"></div>
+          
+          <h3>بطاقة القرار الترجمي</h3>
+          <p class="muted">الأعمدة الإلزامية التي تظهر التفكير النقدي:</p>
+          <ul class="muted" style="line-height:1.8; padding-right:15px">
+            <li>المقابل المعتمد + التبرير اللغوي/الثقافي</li>
+            <li>بديلان مرفوضان + أسباب الرفض</li>
+            <li>مصدر تحقق واحد على الأقل (قاموس/نص موازٍ)</li>
+            <li>ما بعد التحرير (تعديلان محددان على الأقل)</li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3>الروبرك المزدوج 60/40</h3>
+          <div class="kpi">
+            <div class="item" style="background:rgba(106,166,255,.08); border-color:rgba(106,166,255,.3)">
+              <div class="muted">60% - جودة المنتج</div>
+              <div class="num">60%</div>
+              <div class="small">الدقة، السلاسة، الأسلوب، الاتساق، الملاءمة الثقافية</div>
+            </div>
+            <div class="item" style="background:rgba(125,255,178,.08); border-color:rgba(125,255,178,.3)">
+              <div class="muted">40% - جودة المسار</div>
+              <div class="num">40%</div>
+              <div class="small">التبرير، التحقق، القرار، الأخلاقيات، ما بعد التحرير</div>
+            </div>
+          </div>
+          
+          <div class="sep" style="margin:20px 0"></div>
+          
+          <h3>كفايات الترجمة الجديدة</h3>
+          <div class="list">
+            <div class="check">
+              <div>✅</div>
+              <div><b>كفاية التبرير:</b> لماذا هذا المقابل؟ ولماذا هذا الأسلوب؟</div>
+            </div>
+            <div class="check">
+              <div>✅</div>
+              <div><b>كفاية التحقق:</b> من أين استُمد المصطلح؟ وهل ينسجم مع المجال؟</div>
+            </div>
+            <div class="check">
+              <div>✅</div>
+              <div><b>كفاية ما بعد التحرير:</b> كشف التسطيح الأسلوبي، وضبط النبرة</div>
+            </div>
+            <div class="check">
+              <div>✅</div>
+              <div><b>كفاية الأخلاقيات:</b> الإفصاح عن درجة الاستعانة بالأداة</div>
+            </div>
+          </div>
+          
+          <div class="sep" style="margin:20px 0"></div>
+          
+          <div class="hint">
+            <b>الهدف التعليمي:</b> تحويل الذكاء الاصطناعي من "منتج للنص" إلى "مثير للتفكير النقدي"
+          </div>
+        </div>
+      </div>
+      
+      <div class="sep"></div>
+      
+      <div class="row" style="justify-content:space-between; margin-top:20px">
+        <a class="btn" href="#/intro">العودة للخلف</a>
+        <a class="btn primary" href="#/new">تجربة النموذج عملياً</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- لوحة الطالب -->
+  <section id="viewDashboard" class="view">
+    <div class="grid">
+      <div class="card">
+        <h2>لوحة الطالب</h2>
+        <div class="muted">هنا ترى مهامك وتسليماتك وتقارير التعلّم. (البيانات محفوظة محليًا في المتصفح)</div>
+        <div class="sep"></div>
+
+        <div class="kpi" id="kpi"></div>
+
+        <!-- تمرين الهلوسة المقصودة -->
+        <div class="card" style="margin-top:20px; border-color:rgba(255,211,106,.5); background:rgba(255,211,106,.03)">
+          <h3>🔍 تمرين: اكتشاف الهلوسة المقصودة</h3>
+          <div class="muted">تدريب على كشف أخطاء الذكاء الاصطناعي الخفية (Hallucination)</div>
+          
+          <div class="sep"></div>
+          
+          <div class="twoCol">
+            <div>
+              <label>النص المصدر (إنجليزي)</label>
+              <div class="card" style="background:rgba(255,255,255,.02); font-family:monospace; padding:12px">
+                "The scientific conference will be held on March 15, 2024, at the University of Oxford."
+              </div>
+            </div>
+            <div>
+              <label>الترجمة المولدة (تحتوي على خطأين خفيين)</label>
+              <div class="card" style="background:rgba(255,125,125,.05); font-family:monospace; padding:12px; border-color:rgba(255,125,125,.3)">
+                "سيعقد المؤتمر العلمي في 15 مارس 2023 في جامعة كامبريدج."
+              </div>
+            </div>
+          </div>
+          
+          <label style="margin-top:15px">ما الأخطاء التي اكتشفتها؟ وكيف تصححها؟</label>
+          <textarea id="hallucinationAnswer" placeholder="الخطأ 1: التاريخ خطأ (2023 بدل 2024)... الخطأ 2: المكان خطأ (كامبريدج بدل أكسفورد)..."></textarea>
+          
+          <div class="row" style="justify-content:space-between; margin-top:10px">
+            <div>
+              <button class="btn" onclick="showHallucinationHint()">💡 تلميح</button>
+              <button class="btn" onclick="clearHallucinationAnswer()">🗑️ مسح</button>
+            </div>
+            <button class="btn primary" onclick="checkHallucination()">تحقق من الإجابة</button>
+          </div>
+          
+          <div id="hallucinationFeedback" class="hidden" style="margin-top:15px; padding:12px; border-radius:12px; background:rgba(106,166,255,.08); border:1px solid rgba(106,166,255,.3)"></div>
+        </div>
+
+        <div class="sep"></div>
+        <div class="row" style="justify-content:space-between">
+          <h3 style="margin:0">المهام</h3>
+          <a class="btn primary" href="#/new">+ إنشاء مهمة</a>
+        </div>
+
+        <div class="list" id="tasksList" style="margin-top:10px"></div>
+        <div class="footerNote">ملاحظة: هذا Prototype أكاديمي يركّز على "المسار" (Decision Trace) لا على إنتاج الترجمة آليًا.</div>
+      </div>
+
+      <div class="card">
+        <h2>تذكير سريع بالهدف</h2>
+        <div class="hint">
+          الهدف ليس منع الذكاء الاصطناعي، بل <b>تأطير استعماله</b>:
+          تبرير + تحقق + ما بعد التحرير + تصريح الاستخدام.
+        </div>
+        <div class="sep"></div>
+
+        <h3>مكوّنات النسخة الحالية</h3>
+        <ul class="muted">
+          <li>Task → Submission → Decision Card → Learning Report</li>
+          <li>Checklist قبل التسليم</li>
+          <li>تصريح درجة الاستعانة بـ AI</li>
+        </ul>
+
+        <div class="sep"></div>
+        <h3>قريبًا (توسعة المدرّس)</h3>
+        <ul class="muted">
+          <li>Course + Rubric 60/40</li>
+          <li>Teacher Dashboard + Feedback</li>
+          <li>Hallucination Lab</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- إنشاء مهمة جديدة -->
+  <section id="viewNew" class="view hidden">
+    <div class="card">
+      <h2>إنشاء مهمة ترجمة</h2>
+      <div class="muted">حدّدي خصائص المهمة (مجال/جمهور/نبرة) ثم انتقلي لمساحة العمل.</div>
+      <div class="sep"></div>
+
+      <form id="formNewTask">
+        <div class="twoCol">
+          <div>
+            <label>لغة المصدر</label>
+            <select id="srcLang">
+              <option value="ar">العربية</option>
+              <option value="en">الإنجليزية</option>
+              <option value="fr">الفرنسية</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+          <div>
+            <label>لغة الهدف</label>
+            <select id="tgtLang">
+              <option value="en">الإنجليزية</option>
+              <option value="ar">العربية</option>
+              <option value="fr">الفرنسية</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+
+          <div>
+            <label>المجال</label>
+            <select id="domain">
+              <option>عام</option>
+              <option>إعلامي</option>
+              <option>أكاديمي</option>
+              <option>قانوني</option>
+              <option>طبي</option>
+              <option>تقني</option>
+              <option>أدبي</option>
+            </select>
+          </div>
+
+          <div>
+            <label>الجمهور</label>
+            <select id="audience">
+              <option>عام</option>
+              <option>متخصص</option>
+              <option>طلاب</option>
+              <option>صُنّاع قرار</option>
+            </select>
+          </div>
+
+          <div>
+            <label>النبرة</label>
+            <select id="tone">
+              <option>محايدة</option>
+              <option>رسمية</option>
+              <option>تفسيرية/تعليمية</option>
+              <option>إقناعية</option>
+              <option>إبداعية</option>
+            </select>
+          </div>
+
+          <div>
+            <label>علامة حساسية النص (اختياري)</label>
+            <select id="sensitive">
+              <option value="no">لا</option>
+              <option value="yes">نعم — قد يحتوي بيانات/حقوق</option>
+            </select>
+          </div>
+        </div>
+
+        <label>نص المصدر</label>
+        <textarea id="sourceText" placeholder="الصقي النص هنا..."></textarea>
+
+        <div class="row" style="justify-content:flex-end;margin-top:10px">
+          <a class="btn" href="#/dashboard">إلغاء</a>
+          <button class="btn primary" type="submit">إنشاء والانتقال لمساحة العمل</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- مساحة العمل -->
+  <section id="viewWork" class="view hidden">
+    <div class="grid">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <h2 style="margin-bottom:6px">مساحة العمل</h2>
+            <div class="muted" id="taskMeta"></div>
+          </div>
+          <div class="rightActions">
+            <button class="btn" id="btnOpenDecision">بطاقة القرار الترَجَمي</button>
+            <button class="btn primary" id="btnGoReview">مراجعة وتسليم</button>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="twoCol">
+          <div>
+            <h3>النص المصدر</h3>
+            <textarea id="wsSource" disabled></textarea>
+            <div class="footerNote" id="privacyHint" style="display:none">
+              ⚠️ النص معلّم كـ "حساس". تجنّبي إدخال بيانات شخصية/حقوق نشر في أي أدوات عامة خارجية.
+            </div>
+          </div>
+          <div>
+            <h3>الترجمة (مسودة/نهائية)</h3>
+            <textarea id="wsTranslation" placeholder="اكتبي ترجمتك هنا..."></textarea>
+            <div class="small">نصيحة: اتركي أثرًا واضحًا لما عدّلته في "ما بعد التحرير".</div>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+        <div class="row" style="justify-content:space-between">
+          <div class="muted">آخر حفظ: <span class="mono" id="lastSaved">—</span></div>
+          <div class="row">
+            <button class="btn" id="btnSaveDraft">حفظ</button>
+            <a class="btn" href="#/dashboard">رجوع للوحة</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>حالة المسار</h2>
+        <div class="muted">التسليم يتطلب: ترجمة + بطاقة قرار مكتملة + Checklist</div>
+        <div class="sep"></div>
+
+        <div id="traceStatus"></div>
+
+        <div class="sep"></div>
+        <h3>مساعدة سريعة</h3>
+        <ul class="muted">
+          <li><b>التبرير</b>: لماذا هذا المقابل؟</li>
+          <li><b>التحقق</b>: مصدر واحد على الأقل.</li>
+          <li><b>ما بعد التحرير</b>: تعديلان محددان.</li>
+          <li><b>التصريح</b>: هل استعنتِ بـ AI؟ وكيف؟</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- مراجعة وتسليم -->
+  <section id="viewReview" class="view hidden">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div>
+          <h2 style="margin-bottom:6px">مراجعة وتسليم</h2>
+          <div class="muted" id="reviewMeta"></div>
+        </div>
+        <div class="rightActions">
+          <button class="btn" id="btnBackToWork">رجوع لمساحة العمل</button>
+          <button class="btn primary" id="btnSubmit">تسليم وإنشاء تقرير التعلّم</button>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="twoCol">
+        <div>
+          <h3>ملخص سريع</h3>
+          <div id="reviewSummary" class="muted"></div>
+          <div class="sep"></div>
+
+          <h3>تصريح استخدام AI</h3>
+          <div class="check">
+            <input type="checkbox" id="aiUsed" />
+            <div>
+              <div>استعنتُ بأداة ذكاء اصطناعي في هذه المهمة.</div>
+              <div class="small muted">اختاري الأنواع (يمكن اختيار أكثر من واحد):</div>
+            </div>
+          </div>
+
+          <div class="twoCol" style="margin-top:10px">
+            <div class="check"><input type="checkbox" class="aiType" value="اقتراح بدائل" /><div>اقتراح بدائل</div></div>
+            <div class="check"><input type="checkbox" class="aiType" value="توليد مسودة" /><div>توليد مسودة</div></div>
+            <div class="check"><input type="checkbox" class="aiType" value="تحرير/تحسين صياغة" /><div>تحرير/تحسين صياغة</div></div>
+            <div class="check"><input type="checkbox" class="aiType" value="شرح/تلخيص" /><div>شرح/تلخيص</div></div>
+          </div>
+
+          <label>ملاحظات قصيرة (اختياري)</label>
+          <input id="aiNotes" placeholder="مثال: استخدمت الأداة فقط لتوليد بدائل مصطلحية ثم تحققت من قاموس..." />
+        </div>
+
+        <div>
+          <h3>Checklist قبل التسليم</h3>
+          <div class="list">
+            <div class="check"><input type="checkbox" class="ck" data-k="namesNumbers" /><div><b>تحققتُ من الأسماء والأرقام.</b><div class="small muted">خصوصًا التواريخ/الإحالات.</div></div></div>
+            <div class="check"><input type="checkbox" class="ck" data-k="terminology" /><div><b>ثبّتُّ المصطلحات واتساقها.</b><div class="small muted">لا تترك مصطلحين لنفس المفهوم.</div></div></div>
+            <div class="check"><input type="checkbox" class="ck" data-k="toneAudience" /><div><b>راجعتُ النبرة والجمهور.</b><div class="small muted">هل النص رسمي/تعليمي/تقني؟</div></div></div>
+            <div class="check"><input type="checkbox" class="ck" data-k="decisionCard" /><div><b>أكملتُ بطاقة القرار الترَجَمي.</b><div class="small muted">تبرير + تحقق + ما بعد التحرير.</div></div></div>
+          </div>
+
+          <div class="sep"></div>
+          <div id="submitGate" class="badge warn">✳️ أكمل العناصر الإلزامية للتسليم</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- تقرير التعلم -->
+  <section id="viewReport" class="view hidden">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div>
+          <h2 style="margin-bottom:6px">تقرير التعلّم</h2>
+          <div class="muted" id="reportMeta"></div>
+        </div>
+        <div class="rightActions">
+          <a class="btn" href="#/dashboard">العودة للوحة</a>
+          <button class="btn" id="btnExport">تصدير (نسخ كنص)</button>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+      <div id="reportBody"></div>
+      <div class="footerNote">يمكن لاحقًا ربط هذا التقرير بروبرك المدرّس (60/40) ضمن توسعة Teacher Module.</div>
+    </div>
+  </section>
+</main>
+
+<!-- مودال بطاقة القرار -->
+<div class="modal" id="modalDecision" role="dialog" aria-modal="true" aria-label="Decision Card">
+  <div class="panel card">
+    <div class="row" style="justify-content:space-between">
+      <h2 style="margin:0">بطاقة القرار الترَجَمي (إلزامية)</h2>
+      <button class="btn" id="btnCloseDecision">إغلاق</button>
+    </div>
+    <div class="muted" style="margin-top:6px">اكتبي باختصار. المطلوب إظهار التفكير والتحقق، لا الإطالة.</div>
+    <div class="sep"></div>
+
+    <form id="formDecision">
+      <label>1) القرار المعتمد (مصطلح/تركيب/حل أسلوبي)</label>
+      <input id="dcChosen" placeholder="مثال: اعتماد 'حوكمة الجودة' بدل 'إدارة الجودة'..." />
+
+      <label>2) التبرير (لماذا اخترتِ هذا؟)</label>
+      <textarea id="dcJustify" placeholder="تبرير لغوي/ثقافي/أسلوبي/تداولي..."></textarea>
+
+      <div class="twoCol">
+        <div>
+          <label>3) بديل مرفوض #1 + سبب الرفض</label>
+          <textarea id="dcAlt1" placeholder="البديل + سبب رفضه..."></textarea>
+        </div>
+        <div>
+          <label>بديل مرفوض #2 + سبب الرفض</label>
+          <textarea id="dcAlt2" placeholder="البديل + سبب رفضه..."></textarea>
+        </div>
+      </div>
+
+      <label>4) مصدر تحقق واحد على الأقل (رابط/مرجع/قاموس/نص موازٍ)</label>
+      <textarea id="dcSources" placeholder="اكتبي مصدرًا واحدًا على الأقل. يمكن فصل المصادر بسطر جديد."></textarea>
+
+      <label>5) ما بعد التحرير: تعديلان محددان على الأقل</label>
+      <textarea id="dcPostEdit" placeholder="مثال: (1) توحيد مصطلح X في كامل النص. (2) إعادة صياغة جملة Y لتناسب نبرة رسمية..."></textarea>
+
+      <div class="sep"></div>
+      <div class="row" style="justify-content:flex-end">
+        <button type="button" class="btn" id="btnAutoFill">إدراج مثال إرشادي</button>
+        <button type="submit" class="btn primary">حفظ البطاقة</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
