@@ -1,12 +1,16 @@
-/* =========================
+/* ====================================================
    DecisionCard MVP - JavaScript
-   ملف JavaScript كامل
-========================= */
+   ملف JavaScript كامل مع تحسينات متجاوبة
+==================================================== */
 
 /* =========================
    Constants & Utils
 ========================= */
 const LS_KEY = "dc_mvp_v1";
+
+// Responsive detection
+const isMobile = () => window.innerWidth <= 767;
+const isTablet = () => window.innerWidth >= 768 && window.innerWidth <= 1024;
 
 // Formatting helpers
 const nowISO = () => new Date().toISOString();
@@ -118,131 +122,108 @@ function computeTraceStatus(sub) {
 }
 
 /* =========================
-   Enhanced Report Functions
+   Enhanced Mobile Views
 ========================= */
-function calculateRubricScore(task, sub) {
-  // Calculate product score (60%)
-  let productScore = 42; // Base score for having a translation
-  
-  const translation = sub.finalTranslation || "";
-  const sourceLength = task.sourceText.length;
-  const translationLength = translation.length;
-  
-  // Length ratio (ideal: 0.8-1.2)
-  const lengthRatio = translationLength / sourceLength;
-  if (lengthRatio >= 0.7 && lengthRatio <= 1.3) {
-    productScore += 8;
-  }
-  
-  // Decision card completeness
-  const dc = sub.decisionCard || {};
-  if (dc.chosen && dc.chosen.length > 20) productScore += 5;
-  if (dc.postEdit && dc.postEdit.length > 30) productScore += 5;
-  
-  // Cap at 60
-  productScore = Math.min(productScore, 60);
-  
-  // Calculate process score (40%)
-  let processScore = 0;
-  const trace = computeTraceStatus(sub);
-  
-  // Trace level score
-  if (trace.level === "ok") processScore += 20;
-  else if (trace.level === "warn") processScore += 12;
-  else processScore += 5;
-  
-  // AI disclosure
-  const ai = sub.aiDisclosure || {};
-  if (ai.used && ai.types && ai.types.length > 0) processScore += 10;
-  if (ai.notes && ai.notes.length > 10) processScore += 5;
-  
-  // Checklist
-  const ck = sub.checklist || {};
-  const checklistCount = Object.values(ck).filter(v => v === true).length;
-  processScore += checklistCount * 2;
-  
-  // Cap at 40
-  processScore = Math.min(processScore, 40);
-  
-  return {
-    productScore,
-    processScore,
-    totalScore: productScore + processScore,
-    productPercentage: Math.round((productScore / 60) * 100),
-    processPercentage: Math.round((processScore / 40) * 100)
-  };
+function renderEmptyStateMobile() {
+  return `
+    <div class="empty-state-mobile" style="text-align: center; padding: 3rem 1rem;">
+      <div style="font-size: 3.5rem; margin-bottom: 1.5rem; color: var(--muted);">📝</div>
+      <h3 style="color: var(--text); margin-bottom: 0.75rem; font-size: 1.3rem;">
+        لا توجد مهام بعد
+      </h3>
+      <p style="color: var(--muted); margin-bottom: 2rem; line-height: 1.5;">
+        ابدأ بإنشاء مهمة جديدة لتجربة النموذج الهجين
+        لتعليمية الترجمة مع الذكاء الاصطناعي
+      </p>
+      <a href="#/new" class="btn primary" style="padding: 1rem 2rem; font-size: 1rem;">
+        إنشاء أول مهمة
+      </a>
+    </div>
+  `;
 }
 
-function buildReportText(task, sub) {
-  const dc = sub.decisionCard || {};
-  const sources = (dc.sources || "").split("\n").map(x => x.trim()).filter(Boolean);
-  const ai = sub.aiDisclosure || { used: false, types: [], notes: "" };
-  const trace = computeTraceStatus(sub);
-  const rubric = calculateRubricScore(task, sub);
-  
-  // Get score level
-  let scoreLevel = "poor";
-  if (rubric.totalScore >= 80) scoreLevel = "good";
-  else if (rubric.totalScore >= 60) scoreLevel = "average";
+function renderEmptyStateDesktop() {
+  return `
+    <div class="itemRow">
+      <div class="meta">
+        <div><b>لا توجد مهام بعد</b></div>
+        <div class="muted">ابدئي بإنشاء مهمة ترجمة لتجربة مسار "بطاقة القرار".</div>
+      </div>
+      <a class="btn primary" href="#/new">إنشاء مهمة</a>
+    </div>
+  `;
+}
 
-  return [
-    `═╦═══════════════════════════════════════╦═`,
-    ` ║       تقرير التعلّم - النموذج الهجين      ║ `,
-    `═╩═══════════════════════════════════════╩═`,
-    ``,
-    `◈ المهمة: ${task.domain} | ${task.srcLang.toUpperCase()}→${task.tgtLang.toUpperCase()}`,
-    `◈ الجمهور/النبرة: ${task.audience} / ${task.tone}`,
-    `◈ الحساسية: ${task.sensitive === "yes" ? "نعم ⚠️" : "لا"}`,
-    `◈ تاريخ الإنشاء: ${formatDate(task.createdAt)}`,
-    `◈ تاريخ التسليم: ${sub.submittedAt ? formatDate(sub.submittedAt) : "—"}`,
-    ``,
-    `════════════════════════════════════════════`,
-    `         تقييم وفق الروبرك المزدوج 60/40       `,
-    `════════════════════════════════════════════`,
-    ``,
-    `▣ جودة المنتج النهائي (60 نقطة):`,
-    `  • النقاط: ${rubric.productScore}/60 (${rubric.productPercentage}%)`,
-    `  • الدقة والاتساق المصطلحي`,
-    `  • السلاسة الأسلوبية واللغوية`,
-    `  • الملاءمة الثقافية والجمهور`,
-    ``,
-    `▣ جودة المسار والتفكير (40 نقطة):`,
-    `  • النقاط: ${rubric.processScore}/40 (${rubric.processPercentage}%)`,
-    `  • مستوى المسار: ${trace.label}`,
-    `  • عمق التبرير والتحليل`,
-    `  • التحقق من المصادر`,
-    `  • الإفصاح الأخلاقي`,
-    ``,
-    `════════════════════════════════════════════`,
-    `  المجموع الكلي: ${rubric.totalScore}/100`,
-    `  التقدير: ${scoreLevel === "good" ? "ممتاز 🏅" : scoreLevel === "average" ? "جيد ✓" : "يحتاج تحسين 🔄"}`,
-    `════════════════════════════════════════════`,
-    ``,
-    `1) القرار المعتمد:`,
-    `${dc.chosen || "—"}`,
-    ``,
-    `2) التبرير:`,
-    `${dc.justification || "—"}`,
-    ``,
-    `3) بدائل مرفوضة:`,
-    `- ${dc.alt1 || "—"}`,
-    `- ${dc.alt2 || "—"}`,
-    ``,
-    `4) مصادر التحقق:`,
-    ...(sources.length ? sources.map(s => `- ${s}`) : ["- —"]),
-    ``,
-    `5) ما بعد التحرير:`,
-    `${dc.postEdit || "—"}`,
-    ``,
-    `6) تصريح استخدام AI:`,
-    `- استخدمتُ AI؟ ${ai.used ? "نعم" : "لا"}`,
-    `- نوع الاستعانة: ${ai.types && ai.types.length ? ai.types.join("، ") : "—"}`,
-    `- ملاحظات: ${ai.notes || "—"}`,
-    ``,
-    `════════════════════════════════════════════`,
-    `ملاحظة: هذا التقييم تلقائي، ويمكن للمدرس تعديله وفق الروبرك الكامل.`,
-    `════════════════════════════════════════════`
-  ].join("\n");
+function renderTaskItemMobile(task, state) {
+  const sub = getSubmission(state, task.id);
+  const st = computeTraceStatus(sub);
+  const badgeClass = st.level === "ok" ? "ok" : st.level === "bad" ? "bad" : "warn";
+  
+  return `
+    <div class="itemRow mobile-task-item" data-task-id="${task.id}">
+      <div class="meta">
+        <div class="mobile-task-header">
+          <div style="flex: 1;">
+            <div class="mobile-task-title">${task.domain || 'عام'} • ${task.srcLang.toUpperCase()}→${task.tgtLang.toUpperCase()}</div>
+            <div class="mobile-task-subtitle">${task.audience} • ${task.tone}</div>
+          </div>
+          <span class="badge mobile-badge ${badgeClass}">${st.label}</span>
+        </div>
+        
+        <div class="mobile-task-preview">
+          ${(task.sourceText || "").slice(0, 80).replaceAll("<", "&lt;")}${task.sourceText.length > 80 ? "…" : ""}
+        </div>
+        
+        <div class="mobile-task-footer">
+          <div class="mobile-task-date">
+            <span>📅</span>
+            <span>${formatDate(task.createdAt)}</span>
+          </div>
+          ${task.sensitive === "yes" ? 
+            `<span class="mobile-task-sensitive">🔒 حساس</span>` : ''}
+        </div>
+      </div>
+      
+      <div class="mobile-task-actions">
+        <a class="btn mobile-task-btn" href="#/work/${task.id}">
+          <span>فتح</span>
+          <span>→</span>
+        </a>
+        ${sub ? 
+          `<a class="btn mobile-task-btn secondary" href="#/report/${sub.id}">
+            <span>تقرير</span>
+            <span>📊</span>
+          </a>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderTaskItemDesktop(task, state) {
+  const sub = getSubmission(state, task.id);
+  const st = computeTraceStatus(sub);
+  const badgeClass = st.level === "ok" ? "ok" : st.level === "bad" ? "bad" : "warn";
+  const badgeText = st.label;
+
+  return `
+    <div class="itemRow">
+      <div class="meta">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <b>${task.domain} • ${task.srcLang.toUpperCase()}→${task.tgtLang.toUpperCase()}</b>
+          <span class="badge ${badgeClass}">${badgeText}</span>
+          ${task.sensitive === "yes" ? `<span class="badge warn">⚠️ حساس</span>` : ``}
+        </div>
+        <div class="muted">
+          جمهور: ${task.audience} • نبرة: ${task.tone} • أنشئت: ${formatDate(task.createdAt)}
+        </div>
+        <div class="small mono">${(task.sourceText || "").slice(0, 120).replaceAll("<", "&lt;")}…</div>
+      </div>
+      <div class="rightActions">
+        <a class="btn" href="#/work/${task.id}">فتح</a>
+        ${sub ? `<a class="btn" href="#/report/${sub.id}">عرض التقرير</a>` : ``}
+      </div>
+    </div>
+  `;
 }
 
 /* =========================
@@ -328,7 +309,7 @@ function route() {
 }
 
 /* =========================
-   Dashboard View
+   Dashboard View - Enhanced
 ========================= */
 function renderDashboard(state) {
   const tasks = state.tasks;
@@ -339,55 +320,46 @@ function renderDashboard(state) {
   const strong = subs.filter(s => computeTraceStatus(s).level === "ok").length;
 
   // Update KPI
-  document.getElementById("kpi").innerHTML = `
-    <div class="item"><div class="muted">عدد المهام</div><div class="num">${totalTasks}</div></div>
-    <div class="item"><div class="muted">عدد التسليمات</div><div class="num">${totalSubs}</div></div>
-    <div class="item"><div class="muted">مسار قوي</div><div class="num">${strong}</div></div>
+  const kpiContent = isMobile() ? `
+    <div class="kpi-mobile">
+      <div class="kpi-row">
+        <div class="kpi-item">
+          <div class="kpi-number">${totalTasks}</div>
+          <div class="kpi-label">المهام</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-number">${totalSubs}</div>
+          <div class="kpi-label">التسليمات</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-number">${strong}</div>
+          <div class="kpi-label">مسار قوي</div>
+        </div>
+      </div>
+    </div>
+  ` : `
+    <div class="kpi">
+      <div class="item"><div class="muted">عدد المهام</div><div class="num">${totalTasks}</div></div>
+      <div class="item"><div class="muted">عدد التسليمات</div><div class="num">${totalSubs}</div></div>
+      <div class="item"><div class="muted">مسار قوي</div><div class="num">${strong}</div></div>
+    </div>
   `;
+
+  document.getElementById("kpi").innerHTML = kpiContent;
 
   // Update tasks list
   const tasksListEl = document.getElementById("tasksList");
   if (tasks.length === 0) {
-    tasksListEl.innerHTML = `
-      <div class="itemRow">
-        <div class="meta">
-          <div><b>لا توجد مهام بعد</b></div>
-          <div class="muted">ابدئي بإنشاء مهمة ترجمة لتجربة مسار "بطاقة القرار".</div>
-        </div>
-        <a class="btn primary" href="#/new">إنشاء مهمة</a>
-      </div>
-    `;
+    tasksListEl.innerHTML = isMobile() ? renderEmptyStateMobile() : renderEmptyStateDesktop();
     return;
   }
 
-  tasksListEl.innerHTML = tasks
+  const tasksHtml = tasks
     .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""))
-    .map(t => {
-      const sub = getSubmission(state, t.id);
-      const st = computeTraceStatus(sub);
-      const badgeClass = st.level === "ok" ? "ok" : st.level === "bad" ? "bad" : "warn";
-      const badgeText = st.label;
+    .map(t => isMobile() ? renderTaskItemMobile(t, state) : renderTaskItemDesktop(t, state))
+    .join("");
 
-      return `
-        <div class="itemRow">
-          <div class="meta">
-            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-              <b>${t.domain} • ${t.srcLang.toUpperCase()}→${t.tgtLang.toUpperCase()}</b>
-              <span class="badge ${badgeClass}">${badgeText}</span>
-              ${t.sensitive === "yes" ? `<span class="badge warn">⚠️ حساس</span>` : ``}
-            </div>
-            <div class="muted">
-              جمهور: ${t.audience} • نبرة: ${t.tone} • أنشئت: ${formatDate(t.createdAt)}
-            </div>
-            <div class="small mono">${(t.sourceText || "").slice(0, 120).replaceAll("<", "&lt;")}…</div>
-          </div>
-          <div class="rightActions">
-            <a class="btn" href="#/work/${t.id}">فتح</a>
-            ${sub ? `<a class="btn" href="#/report/${sub.id}">عرض التقرير</a>` : ``}
-          </div>
-        </div>
-      `;
-    }).join("");
+  tasksListEl.innerHTML = tasksHtml;
 }
 
 /* =========================
@@ -395,7 +367,17 @@ function renderDashboard(state) {
 ========================= */
 function showHallucinationHint() {
   const feedback = document.getElementById("hallucinationFeedback");
-  feedback.innerHTML = `
+  feedback.innerHTML = isMobile() ? `
+    <div class="hint-mobile">
+      <div style="font-weight: bold; margin-bottom: 8px; color: #2c5282;">💡 تلميح:</div>
+      <div style="font-size: 14px; line-height: 1.4;">
+        ابحثي عن:<br>
+        1. خطأ في <strong>التاريخ</strong> (السنة)<br>
+        2. خطأ في <strong>المكان</strong> (اسم الجامعة)<br>
+        الذكاء الاصطناعي قد يقدم معلومات تبدو منطقية لكنها غير دقيقة!
+      </div>
+    </div>
+  ` : `
     <div><b>💡 تلميح:</b></div>
     <div class="small muted" style="margin-top:5px">
       ابحثي عن:
@@ -426,7 +408,19 @@ function checkHallucination() {
   
   if (hasDateError && hasPlaceError) {
     score = 100;
-    message = `
+    message = isMobile() ? `
+      <div class="success-message">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <span style="font-size: 20px;">✅</span>
+          <span style="font-weight: bold;">ممتاز! اكتشفتِ الخطأين كليهما</span>
+        </div>
+        <div style="font-size: 14px; line-height: 1.4; background: rgba(72, 187, 120, 0.1); padding: 12px; border-radius: 8px;">
+          1. الخطأ في التاريخ: <strong>2023 بدلاً من 2024</strong><br>
+          2. الخطأ في المكان: <strong>كامبريدج بدلاً من أكسفورد</strong><br>
+          هذا بالضبط نوع الأخطاء التي قد ينتجها الذكاء الاصطناعي دون تحقق!
+        </div>
+      </div>
+    ` : `
       <div class="success">✅ <b>ممتاز!</b> اكتشفتِ الخطأين كليهما:</div>
       <div class="small muted" style="margin-top:5px">
         1. الخطأ في التاريخ: 2023 بدلاً من 2024<br>
@@ -436,7 +430,20 @@ function checkHallucination() {
     `;
   } else if (hasDateError || hasPlaceError) {
     score = 50;
-    message = `
+    message = isMobile() ? `
+      <div class="warning-message">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <span style="font-size: 20px;">⚠️</span>
+          <span style="font-weight: bold;">جيد جزئياً</span>
+        </div>
+        <div style="font-size: 14px; line-height: 1.4; background: rgba(237, 137, 54, 0.1); padding: 12px; border-radius: 8px;">
+          ${hasDateError ? 
+            'اكتشفتِ خطأ التاريخ ✓ لكن هناك خطأ آخر في المكان' : 
+            'اكتشفتِ خطأ المكان ✓ لكن هناك خطأ آخر في التاريخ'}
+          <br>تذكري: الذكاء الاصطناعي قد يخطئ في عدة جوانب دفعة واحدة!
+        </div>
+      </div>
+    ` : `
       <div class="error">⚠️ <b>جيد جزئياً</b> اكتشفتِ خطأ واحداً:</div>
       <div class="small muted" style="margin-top:5px">
         ${hasDateError ? 
@@ -447,7 +454,20 @@ function checkHallucination() {
     `;
   } else {
     score = 0;
-    message = `
+    message = isMobile() ? `
+      <div class="error-message">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <span style="font-size: 20px;">❌</span>
+          <span style="font-weight: bold;">تحتاج للمزيد من التدقيق</span>
+        </div>
+        <div style="font-size: 14px; line-height: 1.4; background: rgba(245, 101, 101, 0.1); padding: 12px; border-radius: 8px;">
+          حاولي التركيز على:<br>
+          1. <strong>التواريخ والأرقام</strong> (2023 vs 2024)<br>
+          2. <strong>الأسماء والمعلومات الواقعية</strong> (جامعة كامبريدج vs جامعة أكسفورد)<br>
+          هذه الأخطاء تسمى "هلوسة" (Hallucination) وهي شائعة في مخرجات الذكاء الاصطناعي
+        </div>
+      </div>
+    ` : `
       <div class="error">❌ <b>تحتاج للمزيد من التدقيق</b></div>
       <div class="small muted" style="margin-top:5px">
         حاولي التركيز على:<br>
@@ -458,12 +478,15 @@ function checkHallucination() {
     `;
   }
   
-  feedback.innerHTML = `
-    ${message}
-    <div class="sep" style="margin:10px 0"></div>
-    <div style="display:flex; justify-content:space-between; align-items:center">
-      <div class="small">درجة الاكتشاف: <b>${score}%</b></div>
-      <button class="btn small" onclick="clearHallucinationAnswer()">حاولي مرة أخرى</button>
+  feedback.innerHTML = message + `
+    <div class="sep" style="margin:${isMobile() ? '12px' : '10px'} 0"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 8px;">
+      <div class="${isMobile() ? 'score-mobile' : 'small'}">
+        درجة الاكتشاف: <b>${score}%</b>
+      </div>
+      <button class="btn ${isMobile() ? 'small secondary' : 'small'}" onclick="clearHallucinationAnswer()" style="padding: ${isMobile() ? '8px 12px' : '6px 12px'}">
+        حاولي مرة أخرى
+      </button>
     </div>
   `;
   
@@ -527,20 +550,62 @@ function renderWorkspace(state, taskId) {
   };
 
   // Update UI
-  document.getElementById("taskMeta").textContent = 
+  const metaText = isMobile() ? 
+    `${task.domain} • ${task.srcLang.toUpperCase()}→${task.tgtLang.toUpperCase()}` :
     `مجال: ${task.domain} • ${task.srcLang.toUpperCase()}→${task.tgtLang.toUpperCase()} • جمهور: ${task.audience} • نبرة: ${task.tone}`;
+  
+  document.getElementById("taskMeta").textContent = metaText;
   
   document.getElementById("wsSource").value = task.sourceText;
   document.getElementById("wsTranslation").value = sub.finalTranslation || sub.draftTranslation || "";
   document.getElementById("lastSaved").textContent = sub.updatedAt ? formatDate(sub.updatedAt) : "—";
-  document.getElementById("privacyHint").style.display = task.sensitive === "yes" ? "block" : "none";
+  
+  const privacyHint = document.getElementById("privacyHint");
+  if (task.sensitive === "yes") {
+    privacyHint.style.display = "block";
+    if (isMobile()) {
+      privacyHint.innerHTML = `
+        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 14px;">
+          <span style="color: #ed8936; font-size: 16px;">⚠️</span>
+          <div>
+            <strong>نص حساس</strong><br>
+            تجنبي إدخال بيانات شخصية أو حقوق نشر في أي أدوات عامة خارجية.
+          </div>
+        </div>
+      `;
+    }
+  } else {
+    privacyHint.style.display = "none";
+  }
 
   const st = computeTraceStatus(sub);
   const badgeClass = st.level === "ok" ? "ok" : st.level === "bad" ? "bad" : "warn";
-  document.getElementById("traceStatus").innerHTML = `
+  
+  const traceStatusHTML = isMobile() ? `
+    <div class="trace-status-mobile">
+      <div class="trace-header">
+        <span class="badge ${badgeClass}">${st.label}</span>
+        <div class="trace-progress">
+          <div class="progress-bar">
+            <div class="progress-fill ${st.level}" style="width: ${st.level === 'ok' ? '100%' : st.level === 'warn' ? '60%' : '30%'}"></div>
+          </div>
+        </div>
+      </div>
+      <div class="trace-details">
+        ${st.details.map(x => `
+          <div class="trace-detail-item">
+            <span>${x.includes('✅') ? '✅' : '✳️'}</span>
+            <span>${x.replace('✅ ', '').replace('✳️ ', '')}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : `
     <div class="badge ${badgeClass}" style="margin-bottom:10px">${st.label}</div>
     <div class="muted">${st.details.map(x => `<div>${x}</div>`).join("")}</div>
   `;
+
+  document.getElementById("traceStatus").innerHTML = traceStatusHTML;
 
   // Save to state
   upsertSubmission(state, sub);
@@ -576,12 +641,6 @@ const modal = document.getElementById("modalDecision");
 const btnOpenDecision = document.getElementById("btnOpenDecision");
 const btnCloseDecision = document.getElementById("btnCloseDecision");
 
-btnOpenDecision.addEventListener("click", () => modal.classList.add("open"));
-btnCloseDecision.addEventListener("click", () => modal.classList.remove("open"));
-modal.addEventListener("click", (e) => { 
-  if (e.target === modal) modal.classList.remove("open"); 
-});
-
 // Form elements
 const dcChosen = document.getElementById("dcChosen");
 const dcJustify = document.getElementById("dcJustify");
@@ -589,6 +648,31 @@ const dcAlt1 = document.getElementById("dcAlt1");
 const dcAlt2 = document.getElementById("dcAlt2");
 const dcSources = document.getElementById("dcSources");
 const dcPostEdit = document.getElementById("dcPostEdit");
+
+btnOpenDecision.addEventListener("click", () => {
+  modal.classList.add("open");
+  if (isMobile()) {
+    document.body.style.overflow = "hidden";
+    // Focus first input on mobile
+    setTimeout(() => dcChosen.focus(), 300);
+  }
+});
+
+btnCloseDecision.addEventListener("click", () => {
+  modal.classList.remove("open");
+  if (isMobile()) {
+    document.body.style.overflow = "auto";
+  }
+});
+
+modal.addEventListener("click", (e) => { 
+  if (e.target === modal) {
+    modal.classList.remove("open");
+    if (isMobile()) {
+      document.body.style.overflow = "auto";
+    }
+  }
+});
 
 function fillDecisionModal(dc) {
   dc = dc || {};
@@ -634,6 +718,11 @@ document.getElementById("formDecision").addEventListener("submit", (e) => {
   upsertSubmission(state, sub);
   saveState(state);
   modal.classList.remove("open");
+  
+  if (isMobile()) {
+    document.body.style.overflow = "auto";
+  }
+  
   renderWorkspace(state, currentTaskId);
 });
 
@@ -656,14 +745,47 @@ function renderReview(state, taskId) {
   }
 
   // Update meta
-  document.getElementById("reviewMeta").textContent = 
+  const metaText = isMobile() ? 
+    `${task.domain} • ${formatDate(task.createdAt)}` :
     `مجال: ${task.domain} • ${task.srcLang.toUpperCase()}→${task.tgtLang.toUpperCase()} • أنشئت: ${formatDate(task.createdAt)}`;
+  
+  document.getElementById("reviewMeta").textContent = metaText;
   
   // Update summary
   const st = computeTraceStatus(sub);
-  document.getElementById("reviewSummary").innerHTML = `
-    <div>طول النص المصدر: <span class="mono">${task.sourceText.length}</span> حرف</div>
-    <div>طول الترجمة: <span class="mono">${(sub.finalTranslation || "").length}</span> حرف</div>
+  const translationLength = (sub.finalTranslation || "").length;
+  const sourceLength = task.sourceText.length;
+  
+  document.getElementById("reviewSummary").innerHTML = isMobile() ? `
+    <div class="review-summary-mobile">
+      <div class="review-stats">
+        <div class="stat-item">
+          <div class="stat-label">النص المصدر</div>
+          <div class="stat-value">${sourceLength} حرف</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">الترجمة</div>
+          <div class="stat-value">${translationLength} حرف</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">حالة المسار</div>
+          <div class="stat-value">
+            <span class="badge ${st.level === "ok" ? "ok" : st.level === "bad" ? "bad" : "warn"}">${st.label}</span>
+          </div>
+        </div>
+      </div>
+      <div class="review-details">
+        ${st.details.map(x => `
+          <div class="detail-item">
+            <span>${x.includes('✅') ? '✅' : '✳️'}</span>
+            <span>${x.replace('✅ ', '').replace('✳️ ', '')}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : `
+    <div>طول النص المصدر: <span class="mono">${sourceLength}</span> حرف</div>
+    <div>طول الترجمة: <span class="mono">${translationLength}</span> حرف</div>
     <div>حالة المسار: <span class="badge ${st.level === "ok" ? "ok" : st.level === "bad" ? "bad" : "warn"}">${st.label}</span></div>
     <div class="small muted" style="margin-top:8px">${st.details.map(x => `<div>${x}</div>`).join("")}</div>
   `;
@@ -807,6 +929,134 @@ document.getElementById("btnSubmit").addEventListener("click", () => {
 });
 
 /* =========================
+   Enhanced Report Functions
+========================= */
+function calculateRubricScore(task, sub) {
+  // Calculate product score (60%)
+  let productScore = 42; // Base score for having a translation
+  
+  const translation = sub.finalTranslation || "";
+  const sourceLength = task.sourceText.length;
+  const translationLength = translation.length;
+  
+  // Length ratio (ideal: 0.8-1.2)
+  const lengthRatio = translationLength / sourceLength;
+  if (lengthRatio >= 0.7 && lengthRatio <= 1.3) {
+    productScore += 8;
+  }
+  
+  // Decision card completeness
+  const dc = sub.decisionCard || {};
+  if (dc.chosen && dc.chosen.length > 20) productScore += 5;
+  if (dc.postEdit && dc.postEdit.length > 30) productScore += 5;
+  
+  // Cap at 60
+  productScore = Math.min(productScore, 60);
+  
+  // Calculate process score (40%)
+  let processScore = 0;
+  const trace = computeTraceStatus(sub);
+  
+  // Trace level score
+  if (trace.level === "ok") processScore += 20;
+  else if (trace.level === "warn") processScore += 12;
+  else processScore += 5;
+  
+  // AI disclosure
+  const ai = sub.aiDisclosure || {};
+  if (ai.used && ai.types && ai.types.length > 0) processScore += 10;
+  if (ai.notes && ai.notes.length > 10) processScore += 5;
+  
+  // Checklist
+  const ck = sub.checklist || {};
+  const checklistCount = Object.values(ck).filter(v => v === true).length;
+  processScore += checklistCount * 2;
+  
+  // Cap at 40
+  processScore = Math.min(processScore, 40);
+  
+  return {
+    productScore,
+    processScore,
+    totalScore: productScore + processScore,
+    productPercentage: Math.round((productScore / 60) * 100),
+    processPercentage: Math.round((processScore / 40) * 100)
+  };
+}
+
+function buildReportText(task, sub) {
+  const dc = sub.decisionCard || {};
+  const sources = (dc.sources || "").split("\n").map(x => x.trim()).filter(Boolean);
+  const ai = sub.aiDisclosure || { used: false, types: [], notes: "" };
+  const trace = computeTraceStatus(sub);
+  const rubric = calculateRubricScore(task, sub);
+  
+  // Get score level
+  let scoreLevel = "poor";
+  if (rubric.totalScore >= 80) scoreLevel = "good";
+  else if (rubric.totalScore >= 60) scoreLevel = "average";
+
+  return [
+    `═╦═══════════════════════════════════════╦═`,
+    ` ║       تقرير التعلّم - النموذج الهجين      ║ `,
+    `═╩═══════════════════════════════════════╩═`,
+    ``,
+    `◈ المهمة: ${task.domain} | ${task.srcLang.toUpperCase()}→${task.tgtLang.toUpperCase()}`,
+    `◈ الجمهور/النبرة: ${task.audience} / ${task.tone}`,
+    `◈ الحساسية: ${task.sensitive === "yes" ? "نعم ⚠️" : "لا"}`,
+    `◈ تاريخ الإنشاء: ${formatDate(task.createdAt)}`,
+    `◈ تاريخ التسليم: ${sub.submittedAt ? formatDate(sub.submittedAt) : "—"}`,
+    ``,
+    `════════════════════════════════════════════`,
+    `         تقييم وفق الروبرك المزدوج 60/40       `,
+    `════════════════════════════════════════════`,
+    ``,
+    `▣ جودة المنتج النهائي (60 نقطة):`,
+    `  • النقاط: ${rubric.productScore}/60 (${rubric.productPercentage}%)`,
+    `  • الدقة والاتساق المصطلحي`,
+    `  • السلاسة الأسلوبية واللغوية`,
+    `  • الملاءمة الثقافية والجمهور`,
+    ``,
+    `▣ جودة المسار والتفكير (40 نقطة):`,
+    `  • النقاط: ${rubric.processScore}/40 (${rubric.processPercentage}%)`,
+    `  • مستوى المسار: ${trace.label}`,
+    `  • عمق التبرير والتحليل`,
+    `  • التحقق من المصادر`,
+    `  • الإفصاح الأخلاقي`,
+    ``,
+    `════════════════════════════════════════════`,
+    `  المجموع الكلي: ${rubric.totalScore}/100`,
+    `  التقدير: ${scoreLevel === "good" ? "ممتاز 🏅" : scoreLevel === "average" ? "جيد ✓" : "يحتاج تحسين 🔄"}`,
+    `════════════════════════════════════════════`,
+    ``,
+    `1) القرار المعتمد:`,
+    `${dc.chosen || "—"}`,
+    ``,
+    `2) التبرير:`,
+    `${dc.justification || "—"}`,
+    ``,
+    `3) بدائل مرفوضة:`,
+    `- ${dc.alt1 || "—"}`,
+    `- ${dc.alt2 || "—"}`,
+    ``,
+    `4) مصادر التحقق:`,
+    ...(sources.length ? sources.map(s => `- ${s}`) : ["- —"]),
+    ``,
+    `5) ما بعد التحرير:`,
+    `${dc.postEdit || "—"}`,
+    ``,
+    `6) تصريح استخدام AI:`,
+    `- استخدمتُ AI؟ ${ai.used ? "نعم" : "لا"}`,
+    `- نوع الاستعانة: ${ai.types && ai.types.length ? ai.types.join("، ") : "—"}`,
+    `- ملاحظات: ${ai.notes || "—"}`,
+    ``,
+    `════════════════════════════════════════════`,
+    `ملاحظة: هذا التقييم تلقائي، ويمكن للمدرس تعديله وفق الروبرك الكامل.`,
+    `════════════════════════════════════════════`
+  ].join("\n");
+}
+
+/* =========================
    Enhanced Report View
 ========================= */
 document.getElementById("btnExport").addEventListener("click", () => {
@@ -846,7 +1096,22 @@ function renderReport(state, subId) {
   if (rubric.totalScore >= 80) scoreLevelClass = "good";
   else if (rubric.totalScore >= 60) scoreLevelClass = "average";
   
-  document.getElementById("reportMeta").innerHTML = `
+  const metaHTML = isMobile() ? `
+    <div class="report-meta-mobile">
+      <div class="meta-row">
+        <span>📅</span>
+        <span>${sub.submittedAt ? formatDate(sub.submittedAt) : "—"}</span>
+      </div>
+      <div class="meta-row">
+        <span>📊</span>
+        <span>حالة المسار: <span class="badge ${trace.level === "ok" ? "ok" : trace.level === "bad" ? "bad" : "warn"}">${trace.label}</span></span>
+      </div>
+      <div class="meta-row">
+        <span>🏆</span>
+        <span>التقدير: <span class="badge ${scoreLevelClass === "good" ? "ok" : scoreLevelClass === "average" ? "warn" : "bad"}">${rubric.totalScore}/100</span></span>
+      </div>
+    </div>
+  ` : `
     <div style="display:flex; gap:15px; flex-wrap:wrap">
       <div>تاريخ التسليم: ${sub.submittedAt ? formatDate(sub.submittedAt) : "—"}</div>
       <div>•</div>
@@ -858,11 +1123,65 @@ function renderReport(state, subId) {
     </div>
   `;
 
+  document.getElementById("reportMeta").innerHTML = metaHTML;
+
   const summaryText = sub.learningReport?.summary || buildReportText(task, sub);
   const lines = summaryText.split("\n").map(l => l.replaceAll("<", "&lt;"));
   
   // Create enhanced report display
-  document.getElementById("reportBody").innerHTML = `
+  const reportBodyHTML = isMobile() ? `
+    <div class="report-mobile">
+      <div class="score-cards-mobile">
+        <div class="score-card product-score">
+          <div class="score-title">📊 جودة المنتج</div>
+          <div class="score-value ${rubric.productPercentage >= 70 ? "good" : rubric.productPercentage >= 50 ? "average" : "poor"}">
+            ${rubric.productScore}/60
+          </div>
+          <div class="score-percentage">${rubric.productPercentage}%</div>
+          <div class="progress-bar-mobile">
+            <div class="progress-fill product" style="width: ${rubric.productPercentage}%"></div>
+          </div>
+        </div>
+        
+        <div class="score-card process-score">
+          <div class="score-title">🔍 جودة المسار</div>
+          <div class="score-value ${rubric.processPercentage >= 70 ? "good" : rubric.processPercentage >= 50 ? "average" : "poor"}">
+            ${rubric.processScore}/40
+          </div>
+          <div class="score-percentage">${rubric.processPercentage}%</div>
+          <div class="progress-bar-mobile">
+            <div class="progress-fill process" style="width: ${rubric.processPercentage}%"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="total-score-mobile" style="border-color: ${
+        scoreLevelClass === "good" ? "var(--ok)" : 
+        scoreLevelClass === "average" ? "var(--warn)" : 
+        "var(--bad)"
+      }">
+        <div class="total-score-value">${rubric.totalScore}/100</div>
+        <div class="total-score-label">المجموع الكلي</div>
+        <div class="progress-bar-mobile total">
+          <div class="progress-fill product" style="width: 60%"></div>
+          <div class="progress-fill process" style="width: 40%"></div>
+        </div>
+        <div class="progress-labels">
+          <span class="label-product">60% منتج</span>
+          <span class="label-process">40% مسار</span>
+        </div>
+      </div>
+      
+      <div class="report-details-mobile">
+        <h3 style="margin-bottom: 1rem; font-size: 1.2rem;">📄 التقرير التفصيلي</h3>
+        <div class="report-content-mobile">
+          ${lines.map(line => `
+            <div class="report-line">${line}</div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  ` : `
     <div class="grid" style="margin-bottom:20px">
       <div class="card" style="background:rgba(106,166,255,.05)">
         <h3>📊 تقييم المنتج</h3>
@@ -923,6 +1242,8 @@ function renderReport(state, subId) {
       <pre style="white-space:pre-wrap; line-height:1.7; font-family:monospace; font-size:12px; background:transparent; border:none; padding:0; margin:0">${lines.join("\n")}</pre>
     </div>
   `;
+
+  document.getElementById("reportBody").innerHTML = reportBodyHTML;
 }
 
 /* =========================
@@ -940,4 +1261,340 @@ document.getElementById("btnReset").addEventListener("click", () => {
    Initialize App
 ========================= */
 window.addEventListener("hashchange", route);
-window.addEventListener("DOMContentLoaded", route);
+window.addEventListener("DOMContentLoaded", () => {
+  // Add responsive styles
+  const style = document.createElement("style");
+  style.textContent = `
+    @media (max-width: 767px) {
+      .empty-state-mobile {
+        padding: 2rem 1rem;
+      }
+      
+      .mobile-task-item {
+        margin-bottom: 1rem;
+      }
+      
+      .mobile-task-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+      }
+      
+      .mobile-task-title {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--text);
+      }
+      
+      .mobile-task-subtitle {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 0.25rem;
+      }
+      
+      .mobile-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+      }
+      
+      .mobile-task-preview {
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.4;
+        margin: 0.75rem 0;
+        padding: 0.75rem;
+        background: rgba(0,0,0,0.02);
+        border-radius: 8px;
+      }
+      
+      .mobile-task-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 0.5rem;
+      }
+      
+      .mobile-task-date {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      
+      .mobile-task-sensitive {
+        color: var(--warn);
+        font-size: 0.75rem;
+      }
+      
+      .mobile-task-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      
+      .mobile-task-btn {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .mobile-task-btn.secondary {
+        background: rgba(0,0,0,0.05);
+        border: 1px solid var(--line);
+      }
+      
+      /* KPI Mobile */
+      .kpi-mobile {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid var(--line);
+      }
+      
+      .kpi-row {
+        display: flex;
+        justify-content: space-around;
+      }
+      
+      .kpi-item {
+        text-align: center;
+        flex: 1;
+      }
+      
+      .kpi-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 0.25rem;
+      }
+      
+      .kpi-label {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      
+      /* Trace Status Mobile */
+      .trace-status-mobile {
+        background: rgba(0,0,0,0.02);
+        border-radius: 12px;
+        padding: 1rem;
+      }
+      
+      .trace-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      
+      .trace-progress {
+        flex: 1;
+        margin-left: 1rem;
+      }
+      
+      .progress-bar {
+        height: 6px;
+        background: rgba(0,0,0,0.1);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      
+      .progress-fill {
+        height: 100%;
+        border-radius: 3px;
+      }
+      
+      .progress-fill.ok { background: var(--ok); }
+      .progress-fill.warn { background: var(--warn); }
+      .progress-fill.bad { background: var(--bad); }
+      
+      .trace-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .trace-detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+      }
+      
+      /* Review Mobile */
+      .review-summary-mobile {
+        background: rgba(0,0,0,0.02);
+        border-radius: 12px;
+        padding: 1rem;
+      }
+      
+      .review-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+      }
+      
+      .stat-item {
+        text-align: center;
+        flex: 1;
+      }
+      
+      .stat-label {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 0.25rem;
+      }
+      
+      .stat-value {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+      
+      .review-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+      }
+      
+      /* Report Mobile */
+      .report-meta-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+      }
+      
+      .meta-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      
+      .score-cards-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      .score-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        border: 1px solid var(--line);
+      }
+      
+      .score-title {
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+      }
+      
+      .score-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+      
+      .score-value.good { color: var(--ok); }
+      .score-value.average { color: var(--warn); }
+      .score-value.poor { color: var(--bad); }
+      
+      .score-percentage {
+        font-size: 0.9rem;
+        color: var(--muted);
+        margin-bottom: 0.75rem;
+      }
+      
+      .progress-bar-mobile {
+        height: 8px;
+        background: rgba(0,0,0,0.1);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      
+      .progress-bar-mobile.total {
+        display: flex;
+      }
+      
+      .progress-bar-mobile.total .progress-fill.product {
+        border-radius: 4px 0 0 4px;
+      }
+      
+      .progress-bar-mobile.total .progress-fill.process {
+        border-radius: 0 4px 4px 0;
+      }
+      
+      .total-score-mobile {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 2px solid;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+      
+      .total-score-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+      }
+      
+      .total-score-label {
+        font-size: 1rem;
+        color: var(--muted);
+        margin-bottom: 1rem;
+      }
+      
+      .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+      }
+      
+      .label-product { color: var(--accent); }
+      .label-process { color: var(--ok); }
+      
+      .report-details-mobile {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--line);
+      }
+      
+      .report-content-mobile {
+        font-family: monospace;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+      
+      .report-line {
+        margin-bottom: 0.5rem;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // Initialize
+  route();
+});
+
+// Export functions to global scope
+window.showHallucinationHint = showHallucinationHint;
+window.clearHallucinationAnswer = clearHallucinationAnswer;
+window.checkHallucination = checkHallucination;
