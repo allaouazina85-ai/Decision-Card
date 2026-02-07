@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DecisionCard |  "منصّة الطّالب "انموذجا (MVP)</title>
+  <meta name="theme-color" content="#4299e1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>DecisionCard | "منصّة الطّالب "انموذجا (MVP)</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="responsive.css">
 </head>
 
 <body>
@@ -14,11 +18,11 @@
       <div class="logo" aria-hidden="true"></div>
       <div>
         <div class="title">DecisionCard</div>
-        <div class="small">انموذج منصّة الطّالب (MVP) — جهة المدرّس لاحقًا</div>
+        <div class="small">انموذج منصّة الطالب (MVP) — جهة المدرّس لاحقًا</div>
       </div>
     </div>
-    <div class="pill">Students ✅ | Teacher: Coming Soon</div>
-    <nav class="nav">
+    <div class="pill mobile-hidden">Students ✅ | Teacher: Coming Soon</div>
+    <nav class="nav" aria-label="التنقل الرئيسي">
       <a class="btn" href="#/intro">ملخّص البحث</a>
       <a class="btn" href="#/theory">الإطار النظري</a>
       <a class="btn" href="#/dashboard">لوحة الطالب</a>
@@ -544,5 +548,6 @@
 </div>
 
 <script src="app.js"></script>
+<script src="mobile-enhancements.js"></script>
 </body>
 </html>
